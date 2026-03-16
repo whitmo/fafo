@@ -1,0 +1,13 @@
+# Simulate Data Loss
+
+Now simulate a disaster — delete the database file entirely.
+
+```sh
+rm litestream_demo_env/demo.db
+```
+
+Try to query the (now missing) database. This should fail:
+
+```sh
+sqlite3 litestream_demo_env/demo.db "SELECT * FROM users;" 2>&1 || echo "Database is gone!"
+```

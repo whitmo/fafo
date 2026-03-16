@@ -1,0 +1,5 @@
+dbs:
+  - path: litestream_demo_env/demo.db
+    replicas:
+      - path: litestream_demo_env/wal
+EOF; next

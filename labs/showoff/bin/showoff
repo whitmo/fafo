@@ -1,0 +1,151 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SHOWOFF_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+
+usage() {
+  echo "Usage: showoff [--reset] <steps-dir> <workspace-dir>"
+  echo ""
+  echo "Run an interactive demo from markdown step files."
+  echo ""
+  echo "Options:"
+  echo "  --reset    Clear completion state and start fresh"
+  exit 1
+}
+
+# --- Check dependencies ---
+if ! command -v gum &>/dev/null; then
+  echo "Error: gum is required but not installed."
+  echo "  brew install gum"
+  exit 1
+fi
+
+# Prefer brew bash (4+) for READLINE_LINE support
+SHOWOFF_BASH="bash"
+if [[ -x /opt/homebrew/bin/bash ]]; then
+  SHOWOFF_BASH="/opt/homebrew/bin/bash"
+elif [[ -x /usr/local/bin/bash ]]; then
+  SHOWOFF_BASH="/usr/local/bin/bash"
+fi
+
+# --- Parse args ---
+RESET=false
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --reset)
+      RESET=true
+      shift
+      ;;
+    -h|--help)
+      usage
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
+
+if [[ $# -lt 2 ]]; then
+  usage
+fi
+
+STEPS_DIR="$(cd "$1" && pwd)"
+WORKSPACE_DIR="$2"
+
+if [[ ! -d "$STEPS_DIR" ]]; then
+  echo "Error: steps directory '$1' does not exist."
+  exit 1
+fi
+
+mkdir -p "$WORKSPACE_DIR"
+WORKSPACE_DIR="$(cd "$WORKSPACE_DIR" && pwd)"
+
+STATE_FILE="$WORKSPACE_DIR/.showoff-state"
+
+if [[ "$RESET" == true ]]; then
+  rm -f "$STATE_FILE"
+  rm -f "$WORKSPACE_DIR/.showoff-block-index"
+  echo "State reset."
+fi
+
+# --- Helpers ---
+get_title() {
+  local file="$1"
+  head -20 "$file" | grep -m1 '^# ' | sed 's/^# //'
+}
+
+is_complete() {
+  local filename="$1"
+  [[ -f "$STATE_FILE" ]] && grep -qxF "$filename" "$STATE_FILE"
+}
+
+# --- Main loop ---
+while true; do
+  # Build step list
+  items=()
+  files=()
+  for f in "$STEPS_DIR"/*.md; do
+    [[ -f "$f" ]] || continue
+    filename="$(basename "$f")"
+    title="$(get_title "$f")"
+    step_num="${filename%%[-_]*}"
+
+    if is_complete "$filename"; then
+      marker="✓"
+    else
+      marker="○"
+    fi
+
+    items+=("$marker $step_num - $title")
+    files+=("$f")
+  done
+
+  if [[ ${#items[@]} -eq 0 ]]; then
+    echo "No markdown files found in $STEPS_DIR"
+    exit 1
+  fi
+
+  items+=("  quit")
+
+  # Show step list
+  echo ""
+  selected=$(gum choose --header "Demo Steps" --header.foreground="99" "${items[@]}") || break
+
+  # Handle quit
+  if [[ "$selected" == *"quit"* ]]; then
+    break
+  fi
+
+  # Find which file was selected
+  idx=0
+  selected_file=""
+  for item in "${items[@]}"; do
+    if [[ "$item" == "$selected" ]]; then
+      selected_file="${files[$idx]}"
+      break
+    fi
+    idx=$((idx + 1))
+  done
+
+  if [[ -z "$selected_file" ]]; then
+    continue
+  fi
+
+  filename="$(basename "$selected_file")"
+
+  # Reset block index for this step
+  echo "0" > "$WORKSPACE_DIR/.showoff-block-index"
+
+  # Launch subshell
+  export SHOWOFF_STEP_FILE="$selected_file"
+  export SHOWOFF_WORKSPACE="$WORKSPACE_DIR"
+  export SHOWOFF_INIT="$SHOWOFF_DIR/bin/_shell-init.sh"
+  export SHOWOFF_STEP_NAME="${filename%%.*}"
+
+  (cd "$WORKSPACE_DIR" && "$SHOWOFF_BASH" --rcfile "$SHOWOFF_INIT")
+
+  # Mark step complete
+  if ! is_complete "$filename"; then
+    echo "$filename" >> "$STATE_FILE"
+  fi
+done

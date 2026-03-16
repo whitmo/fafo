@@ -1,0 +1,9 @@
+# Setup Environment
+
+Create the demo directory structure. We need a place for the SQLite database and a separate directory where Litestream will store WAL replicas.
+
+```sh
+mkdir -p litestream_demo_env/wal
+
+ls -la litestream_demo_env/
+```
