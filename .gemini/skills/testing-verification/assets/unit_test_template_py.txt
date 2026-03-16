@@ -1,0 +1,21 @@
+import unittest
+
+class Test{{CLASS_NAME}}(unittest.TestCase):
+
+    def setUp(self):
+        # Setup resources needed for tests
+        pass
+
+    def tearDown(self):
+        # Clean up resources after tests
+        pass
+
+    def test_{{FUNCTION_NAME}}(self):
+        # Test case for {{FUNCTION_NAME}}
+        # Arrange
+        # Act
+        # Assert
+        self.fail("Test not implemented")
+
+if __name__ == '__main__':
+    unittest.main()

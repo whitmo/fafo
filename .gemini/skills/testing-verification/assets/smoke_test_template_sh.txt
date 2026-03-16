@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# Simple smoke test template for high-level functionality
+# Replace with actual checks for your application
+
+APP_URL="{{APPLICATION_URL}}"
+EXPECTED_STATUS=200
+EXPECTED_CONTENT="{{EXPECTED_CONTENT_SNIPPET}}"
+
+echo "--- Running Smoke Test ---"
+echo "Target URL: $APP_URL"
+
+# Check if application is reachable and returns expected status
+HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" $APP_URL)
+
+if [ "$HTTP_STATUS" -eq "$EXPECTED_STATUS" ]; then
+    echo "SUCCESS: Application responded with status $HTTP_STATUS."
+
+    # Check for expected content on the page
+    if curl -s $APP_URL | grep -q "$EXPECTED_CONTENT"; then
+        echo "SUCCESS: Expected content '$EXPECTED_CONTENT' found."
+        echo "Smoke test PASSED!"
+        exit 0
+    else
+        echo "FAILURE: Expected content '$EXPECTED_CONTENT' NOT found."
+        echo "Smoke test FAILED!"
+        exit 1
+    fi
+else
+    echo "FAILURE: Application responded with unexpected status $HTTP_STATUS (Expected: $EXPECTED_STATUS)."
+    echo "Smoke test FAILED!"
+    exit 1
+fi
