@@ -16,9 +16,16 @@ _showoff_parse_blocks() {
   local block=""
   while IFS= read -r line; do
     if [[ "$in_block" == false ]]; then
-      if [[ "$line" == '```sh' ]] || [[ "$line" == '```bash' ]] || [[ "$line" == '```shell' ]] || [[ "$line" == '```' ]]; then
+      if [[ "$line" == '```viz' ]]; then
+        # viz blocks are viewer-only — skip for clipboard
+        in_block=viz
+      elif [[ "$line" == '```sh' ]] || [[ "$line" == '```bash' ]] || [[ "$line" == '```shell' ]] || [[ "$line" == '```' ]]; then
         in_block=true
         block=""
+      fi
+    elif [[ "$in_block" == "viz" ]]; then
+      if [[ "$line" == '```' ]]; then
+        in_block=false
       fi
     else
       if [[ "$line" == '```' ]]; then
@@ -48,7 +55,10 @@ _showoff_get_index() {
 }
 
 _showoff_set_index() {
-  echo "$1" > "$_showoff_index_file"
+  local tmp
+  tmp="$_showoff_index_file.tmp.$$"
+  echo "$1" > "$tmp"
+  mv "$tmp" "$_showoff_index_file"
 }
 
 # --- Clipboard helper ---
@@ -76,6 +86,25 @@ _showoff_print_block() {
   fi
 }
 
+# --- Viewer liveness check ---
+_showoff_viewer_alive=true
+_showoff_check_viewer() {
+  if [[ "$_showoff_viewer_alive" == false ]]; then
+    return 1
+  fi
+  local pid_file="$SHOWOFF_WORKSPACE/.showoff-viewer-pid"
+  if [[ -f "$pid_file" ]]; then
+    local pid
+    pid=$(cat "$pid_file")
+    if [[ -n "$pid" ]] && ! kill -0 "$pid" 2>/dev/null; then
+      _showoff_viewer_alive=false
+      echo "  Viewer stopped — continuing in single-pane mode"
+      return 1
+    fi
+  fi
+  return 0
+}
+
 # --- next command ---
 next() {
   local idx
@@ -97,6 +126,10 @@ next() {
   echo ""
 
   _showoff_set_index $((idx + 1))
+
+  # Check viewer health (only matters in split mode)
+  _showoff_check_viewer
+  return 0
 }
 
 # --- peek command ---

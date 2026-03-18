@@ -4,12 +4,13 @@ set -euo pipefail
 SHOWOFF_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 
 usage() {
-  echo "Usage: showoff [--reset] <steps-dir> <workspace-dir>"
+  echo "Usage: showoff [--reset] [--split] <steps-dir> <workspace-dir>"
   echo ""
   echo "Run an interactive demo from markdown step files."
   echo ""
   echo "Options:"
   echo "  --reset    Clear completion state and start fresh"
+  echo "  --split    Launch split-pane mode (narrative left, shell right)"
   exit 1
 }
 
@@ -30,10 +31,15 @@ fi
 
 # --- Parse args ---
 RESET=false
+SPLIT=false
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --reset)
       RESET=true
+      shift
+      ;;
+    --split)
+      SPLIT=true
       shift
       ;;
     -h|--help)
@@ -65,7 +71,56 @@ STATE_FILE="$WORKSPACE_DIR/.showoff-state"
 if [[ "$RESET" == true ]]; then
   rm -f "$STATE_FILE"
   rm -f "$WORKSPACE_DIR/.showoff-block-index"
+  rm -f "$WORKSPACE_DIR/.showoff-active-step"
+  rm -f "$WORKSPACE_DIR/.showoff-viewer-pid"
   echo "State reset."
+fi
+
+# --- Split-pane mode ---
+if [[ "$SPLIT" == true ]]; then
+  # Check tmux is available
+  if ! command -v tmux &>/dev/null; then
+    echo "Error: tmux is required for --split mode."
+    echo "  brew install tmux"
+    exit 1
+  fi
+
+  # Column-width guard
+  COLS=$(tput cols 2>/dev/null || echo 80)
+  if [[ $COLS -lt 100 ]]; then
+    echo "Error: Terminal width ($COLS cols) too narrow for split mode."
+    echo "  Need at least 100 columns. Try single-pane mode instead."
+    exit 1
+  elif [[ $COLS -lt 140 ]]; then
+    echo "Warning: Terminal width ($COLS cols) is tight for split mode."
+    echo "  140+ columns recommended for best experience."
+    echo ""
+  fi
+
+  # Export vars for viewer and shell
+  export SHOWOFF_STEPS_DIR="$STEPS_DIR"
+  export SHOWOFF_WORKSPACE="$WORKSPACE_DIR"
+  export SHOWOFF_DIR
+  export SHOWOFF_BASH
+
+  VIEWER_CMD="$SHOWOFF_DIR/bin/_viewer.sh"
+
+  if [[ -z "${TMUX:-}" ]]; then
+    # Not in tmux — create a dedicated session and re-exec ourselves inside it
+    exec tmux -L showoff new-session -s showoff \
+      "$0 --split '$STEPS_DIR' '$WORKSPACE_DIR'"
+  fi
+
+  # Already in tmux — split the current window
+  # Create viewer in left pane, keep shell in right pane
+  tmux split-window -h -b -l 40% \
+    "SHOWOFF_STEPS_DIR='$STEPS_DIR' SHOWOFF_WORKSPACE='$WORKSPACE_DIR' '$VIEWER_CMD'"
+  VIEWER_PANE_ID=$(tmux display-message -p -t '{left}' '#{pane_id}')
+
+  # Kill viewer pane on exit
+  trap 'tmux kill-pane -t "$VIEWER_PANE_ID" 2>/dev/null' EXIT
+
+  export SHOWOFF_SPLIT_MODE=1
 fi
 
 # --- Helpers ---
@@ -136,6 +191,11 @@ while true; do
   # Reset block index for this step
   echo "0" > "$WORKSPACE_DIR/.showoff-block-index"
 
+  # Signal viewer with active step (split mode)
+  if [[ "${SHOWOFF_SPLIT_MODE:-}" == "1" ]]; then
+    echo "$filename" > "$WORKSPACE_DIR/.showoff-active-step"
+  fi
+
   # Launch subshell
   export SHOWOFF_STEP_FILE="$selected_file"
   export SHOWOFF_WORKSPACE="$WORKSPACE_DIR"
@@ -147,5 +207,10 @@ while true; do
   # Mark step complete
   if ! is_complete "$filename"; then
     echo "$filename" >> "$STATE_FILE"
+  fi
+
+  # Clear active step (back to list view)
+  if [[ "${SHOWOFF_SPLIT_MODE:-}" == "1" ]]; then
+    : > "$WORKSPACE_DIR/.showoff-active-step"
   fi
 done
