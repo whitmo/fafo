@@ -1,0 +1,24 @@
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: 'dark',
+    themeVariables: {
+      fontSize: '18px',
+      primaryColor: '#268bd2',
+      primaryTextColor: '#eee8d5',
+      lineColor: '#93a1a1',
+      secondaryColor: '#073642',
+      tertiaryColor: '#002b36'
+    }
+  });
+  // Re-render mermaid on each slide change
+  document.addEventListener('DOMContentLoaded', function() {
+    mermaid.run({ querySelector: '.mermaid' });
+    if (typeof Reveal !== 'undefined') {
+      Reveal.on('slidechanged', function() {
+        mermaid.run({ querySelector: '.mermaid' });
+      });
+    }
+  });
+</script>

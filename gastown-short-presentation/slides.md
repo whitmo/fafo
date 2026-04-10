@@ -14,9 +14,10 @@ keywords:
 ---
 
 <!-- slide: 0 -->
-# Cookin w/ Gas Town {data-background="images/busytown-gastown.png"}
+# Cookin w/ Gas Town {data-background="images/busytown-gastown.png" data-background-size="contain" data-background-position="center"}
 
-## Pt1 of a Conductor's Dilemma {.r-fit-text}
+<div style="font-family: 'Georgia', serif; font-size: 0.6em; font-style: italic; opacity: 0.85; margin-top: -0.3em;">Pt1 of a Conductor's Dilemma</div>
+
 #### Whit Morriss
 #### Six Feet Up
 
@@ -28,13 +29,25 @@ keywords:
 :::
 
 <!-- slide: 1 -->
-# The Dilemma {data-background="images/future-is-legion.jpg"}
+#
 
-One agent is a conversation.
+![](images/kent-beck-genie.png){.r-stretch}
 
-Two agents is a negotiation.
+::: notes
+- Kent Beck wrestling with the same problem — coding agents are powerful
+  but controlling them is the hard part
+- This is what motivated us to build Gas Town
+- Pause and let the audience read it
+:::
 
-Three agents is a _government_.
+<!-- slide: 2 -->
+# 99 Problems, Off by 1 {data-background="images/future-is-legion.jpg"}
+
+> "One agent is a conversation.
+> Two agents is a negotiation.
+> Three agents is a _government_."
+>
+> — _the mayor_
 
 ::: notes
 - Single agent: you prompt, it responds. Easy.
@@ -45,8 +58,8 @@ Three agents is a _government_.
 - This is the problem Gas Town solves.
 :::
 
-<!-- slide: 2 -->
-# Why Orchestrate {data-background="images/kent-beck-genie.png"}
+<!-- slide: 3 -->
+# Why Orchestrate {data-background="images/4.png"}
 
 > "Patterns for communication are patterns for parallelism."
 
@@ -62,8 +75,8 @@ Three agents is a _government_.
 - The communication pattern IS the parallelism pattern
 :::
 
-<!-- slide: 3 -->
-# What is Gas Town {data-background="images/4.png"}
+<!-- slide: 4 -->
+# What is Gas Town {data-background="images/5.png"}
 
 A multi-agent orchestration system for software teams.
 
@@ -82,7 +95,7 @@ A multi-agent orchestration system for software teams.
 - Communication is async: mail for messages, hooks for assignments
 :::
 
-<!-- slide: 4 -->
+<!-- slide: 5 -->
 # The Cast {data-background="images/busytown-joe.png"}
 
 | Role | Job | Think of it as... |
@@ -101,16 +114,18 @@ A multi-agent orchestration system for software teams.
 - They communicate through the mail system, not through shared context
 :::
 
-<!-- slide: 5 -->
+<!-- slide: 6 -->
 # The Engine {data-background="images/6.png"}
 
-```
-User request
-  → Mayor creates bead
-    → Mayor slings bead to rig
-      → Agent picks up on hook
-        → Work happens
-          → Completion logged to ledger
+```{=html}
+<pre class="mermaid" style="max-height: 75vh;">
+graph LR
+    A["User Request"] --> B["Mayor creates bead"]
+    B --> C["Slings to rig"]
+    C --> D["Agent hooks work"]
+    D --> E["Work happens"]
+    E --> F["Logged to ledger"]
+</pre>
 ```
 
 ::: notes
@@ -124,7 +139,7 @@ User request
   what kills throughput
 :::
 
-<!-- slide: 6 -->
+<!-- slide: 7 -->
 # Let's Cook {data-background="images/agent-at-home-0.png"}
 
 <DEMO>
@@ -142,7 +157,7 @@ Demo sequence (showoff steps):
 6. bd show — the ledger entry
 :::
 
-<!-- slide: 7 -->
+<!-- slide: 8 -->
 # What Makes It Work {data-background="images/busytown-gastown.png"}
 
 - **Constraint** over control
@@ -158,7 +173,7 @@ Demo sequence (showoff steps):
   nondeterministic systems through structure
 :::
 
-<!-- slide: 8 -->
+<!-- slide: 9 -->
 # Next Time + Talk To Me {data-background="images/3.png"}
 
 **Pt2**: failure modes, scaling polecats, cross-rig coordination
