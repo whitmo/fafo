@@ -1,0 +1,26 @@
+# reveal.js build artifacts
+css/
+dist/
+js/
+plugin/
+public/
+scripts/
+test/
+react/
+node_modules/
+index.html
+package.json
+package-lock.json
+tsconfig.json
+tsconfig.node.json
+vite.config.ts
+vite.config.styles.ts
+CONTRIBUTING.md
+LICENSE.md
+.codespellrc
+.prettierrc
+.prettierignore
+.github/
+
+# demo workspace
+demo/workspace/
