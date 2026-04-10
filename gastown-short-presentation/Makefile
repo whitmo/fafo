@@ -8,6 +8,7 @@ index.html: slides.md js/reveal.js dist/theme/$(slide-theme).css ## build presen
 		-V center=false \
 		-V autoPlayMedia=false \
 		-V hash=true \
+		--include-in-header=mermaid-init.html \
 		-o "$@" "$<"
 
 js/reveal.js:
