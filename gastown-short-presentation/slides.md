@@ -16,7 +16,7 @@ keywords:
 <!-- slide: 0 -->
 # Cookin w/ Gas Town {data-background="images/busytown-gastown.png"}
 
-## Pt1 of a Conductor's Dilemma {.r-fit-text}
+## Pt1 of the Conductor's Dilemma {.r-fit-text}
 #### Whit Morriss
 #### Six Feet Up
 
@@ -49,6 +49,7 @@ Three agents is a _government_.
 # Why Orchestrate {data-background="images/kent-beck-genie.png"}
 
 > "Patterns for communication are patterns for parallelism."
+>    _Programming Rust, 2nd Edition_
 
 ::: notes
 - This is the thesis of the whole talk
@@ -159,16 +160,10 @@ Demo sequence (showoff steps):
 :::
 
 <!-- slide: 8 -->
-# Next Time + Talk To Me {data-background="images/3.png"}
+# Thanks {data-background="images/3.png"}
 
-**Pt2**: failure modes, scaling polecats, cross-rig coordination
-
-Whit Morriss — Six Feet Up
-
-::: notes
-- Part 2 will cover the hard problems: what happens when an agent
-  fails mid-task, how do you scale beyond one rig, what happens
-  when the witness and refinery disagree
-- Thank you, questions welcome
-- Gas Town is built on Claude Code — ask me how to get started
-:::
+Future episodes
+- ralph-orchestrator
+- multiclaude (RIP)
+- wasteland
+- ws-mcp
