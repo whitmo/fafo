@@ -14,7 +14,7 @@ keywords:
 ---
 
 <!-- slide: 0 -->
-# Cookin w/ Gas Town {data-background="images/1.png"}
+# Cookin w/ Gas Town {data-background="images/busytown-gastown.png"}
 
 ## Pt1 of a Conductor's Dilemma {.r-fit-text}
 #### Whit Morriss
@@ -22,13 +22,13 @@ keywords:
 
 ::: notes
 - Intro: who you are, what you do at Six Feet Up
-- This is part 1 — the conductor's dilemma is: how do you get
-  multiple AI agents to do real work without everything falling apart?
+- Part 1 — the dilemma: how do you get multiple AI agents to do
+  real work without everything falling apart?
 - Today we're going to cook with Gas Town, a system we built to answer that question
 :::
 
 <!-- slide: 1 -->
-# The Dilemma {data-background="images/2.png"}
+# The Dilemma {data-background="images/future-is-legion.jpg"}
 
 One agent is a conversation.
 
@@ -40,14 +40,30 @@ Three agents is a _government_.
 - Single agent: you prompt, it responds. Easy.
 - Two agents: now they need to agree on something. Handoff, context, who does what.
 - Three+: you need structure. Roles, protocols, visibility.
-- The conductor's dilemma: you can't micromanage agents and you can't
-  let them free-range. You need a system that lets them self-organize
-  around real constraints.
+- You can't micromanage agents and you can't let them free-range.
+  You need a system that lets them self-organize around real constraints.
 - This is the problem Gas Town solves.
 :::
 
 <!-- slide: 2 -->
-# What is Gas Town {data-background="images/3.png"}
+# Why Orchestrate {data-background="images/kent-beck-genie.png"}
+
+> "Patterns for communication are patterns for parallelism."
+
+::: notes
+- This is the thesis of the whole talk
+- If you want agents to work in parallel, you need communication patterns first
+- Not bureaucracy — infrastructure. The same way CSP, actor models, and
+  message queues solved concurrency for software, roles and protocols
+  solve it for agents
+- Every design choice in Gas Town flows from this: mail, hooks, beads,
+  roles — they exist so agents can work simultaneously without stepping
+  on each other
+- The communication pattern IS the parallelism pattern
+:::
+
+<!-- slide: 3 -->
+# What is Gas Town {data-background="images/4.png"}
 
 A multi-agent orchestration system for software teams.
 
@@ -66,8 +82,8 @@ A multi-agent orchestration system for software teams.
 - Communication is async: mail for messages, hooks for assignments
 :::
 
-<!-- slide: 3 -->
-# The Cast {data-background="images/4.png"}
+<!-- slide: 4 -->
+# The Cast {data-background="images/busytown-joe.png"}
 
 | Role | Job | Think of it as... |
 |------|-----|-------------------|
@@ -85,8 +101,8 @@ A multi-agent orchestration system for software teams.
 - They communicate through the mail system, not through shared context
 :::
 
-<!-- slide: 4 -->
-# The Engine {data-background="images/5.png"}
+<!-- slide: 5 -->
+# The Engine {data-background="images/6.png"}
 
 ```
 User request
@@ -108,27 +124,8 @@ User request
   what kills throughput
 :::
 
-<!-- slide: 5 -->
-# Why Not Just... {data-background="images/6.png"}
-
-"Why not one big agent with a huge context?"
-
-- Context is finite (~200k tokens)
-- Attention degrades with length
-- One agent = one thread of execution
-- No parallelism, no specialization, no review
-
-::: notes
-- The tragedy of the context: every tool call, every search result
-  eats tokens and pushes signal away from attention
-- A single agent can't review its own work effectively
-- With Gas Town, the witness reviews the refinery's work with fresh eyes
-- Parallel polecats can scout 5 things at once
-- Separation of concerns isn't just for code — it's for agents too
-:::
-
 <!-- slide: 6 -->
-# Let's Cook {data-background="images/1.png"}
+# Let's Cook {data-background="images/agent-at-home-0.png"}
 
 <DEMO>
 
@@ -146,28 +143,7 @@ Demo sequence (showoff steps):
 :::
 
 <!-- slide: 7 -->
-# What We Just Saw {data-background="images/2.png"}
-
-- Work flowed without human intervention
-- Each agent did _one job well_
-- Context stayed clean — no single agent held everything
-- The ledger recorded what happened, not what was claimed
-
-::: notes
-- The refinery didn't need the full conversation history
-- The witness reviewed with fresh context — adversarial by design
-- Mail preserved the handoff context without polluting working memory
-- The ledger is append-only — agents can't cover their tracks
-- This is the conductor's insight: you don't play every instrument,
-  you create the conditions for the orchestra to play itself
-:::
-
-<!-- slide: 8 -->
-# The Conductor's Insight {data-background="images/3.png"}
-
-You don't play every instrument.
-
-You create conditions for the orchestra to play itself.
+# What Makes It Work {data-background="images/busytown-gastown.png"}
 
 - **Constraint** over control
 - **Protocol** over micromanagement
@@ -182,34 +158,17 @@ You create conditions for the orchestra to play itself.
   nondeterministic systems through structure
 :::
 
-<!-- slide: 9 -->
-# Next Time: Pt2 {data-background="images/4.png"}
+<!-- slide: 8 -->
+# Next Time + Talk To Me {data-background="images/3.png"}
 
-The conductor's dilemma deepens:
+**Pt2**: failure modes, scaling polecats, cross-rig coordination
 
-- Failure modes and recovery
-- Scaling polecats
-- Cross-rig coordination
-- When agents disagree
+Whit Morriss — Six Feet Up
 
 ::: notes
 - Part 2 will cover the hard problems: what happens when an agent
   fails mid-task, how do you scale beyond one rig, what happens
   when the witness and refinery disagree
-- These are the real orchestration problems — the ones that make
-  you want to go back to doing everything yourself
-- But the ledger keeps you honest and the system keeps you sane
-:::
-
-<!-- slide: 10 -->
-# Talk To Me {data-background="images/5.png"}
-
-Whit Morriss
-
-Six Feet Up
-
-::: notes
-- Thank you
-- Questions welcome
-- If you want to try Gas Town, it's built on Claude Code — ask me how to get started
+- Thank you, questions welcome
+- Gas Town is built on Claude Code — ask me how to get started
 :::
